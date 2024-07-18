@@ -1,0 +1,69 @@
+@echo off
+ 
+::
+::
+:: Set the following to match the Live executable you are using:
+::
+::
+set EDITION=Live 12 Alpha
+set EXECUTABLE=Ableton %EDITION%.exe
+set VERSION=12.0a2
+ 
+::
+::
+:: Set the following to match the your multi-seat token displayed at https://www.ableton.com/account.
+:: Make sure to select the correct multi-seat license in the license chooser.
+:: If you haven't yet generated a token, you can create a new one by clicking "Generate new token".
+:: The token will not expire until you revoke it by generating a new one. Revoke it if you suspect
+:: the token has been compromised and are observing unexpected Live authorizations.
+::
+:: Note: The currently valid token is only used by Ableton Live during the authorization step below.
+:: Revoking it prevents new installations of Ableton Live from being authorized with the revoked
+:: token, but will not prevent existing, already authorized installations from running.
+::
+::
+set TOKEN=r9qekcex45yk665w
+ 
+::
+::
+:: During authorization, Live writes to a log file called Log.txt. This file can contain
+:: useful information to diagnose issues during authorization. If this script runs as
+:: an administrator, it may be preferrable to write this logfile somewhere else.
+::
+::
+set LOGFILESDIR=C:\Temp\AbletonLogFiles
+ 
+:: Create the log files directory
+mkdir "%LOGFILESDIR%" 2>nul
+ 
+:: Create shared Unlock folder
+mkdir "C:\ProgramData\Ableton\CommonConfiguration\Live %VERSION%\Unlock\" 2>nul
+type nul > "C:\ProgramData\Ableton\CommonConfiguration\Live %VERSION%\Unlock\Unlock.json"
+del /F /Q "C:\ProgramData\Ableton\CommonConfiguration\Live %VERSION%\Unlock\Unlock.cfg" 2>nul
+ 
+mkdir "C:\ProgramData\Ableton\CommonConfiguration\Live %VERSION%\Preferences\" 2>nul
+echo -_DisableAutoUpdates > "C:\ProgramData\Ableton\CommonConfiguration\Live %VERSION%\Preferences\Options.txt"
+echo "-PythonLogLevel=INFO" >> "C:\ProgramData\Ableton\CommonConfiguration\Live %VERSION%\Preferences\Options.txt"
+echo "-LogFilesDir=%LOGFILESDIR% >> "C:\ProgramData\Ableton\CommonConfiguration\Live %VERSION%\Preferences\Options.txt"
+ 
+:: Copies Live application to Start Menu for all users
+xcopy /Y "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Ableton Live 12 Alpha.lnk" "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\" 2>nul
+ 
+ 
+:: Run Ableton and capture its exit code
+start /wait "" cmd /v /c ""C:\ProgramData\Ableton\%EDITION%\Program\%EXECUTABLE%" --authorization-token=%TOKEN%& exit !ERRORLEVEL!" 2>&1
+ 
+:: Capture the exit code
+set LIVE_EXIT_CODE=%ERRORLEVEL%
+ 
+# Rewrite Options.txt for subsequent runs
+echo -_DisableAutoUpdates > "C:\ProgramData\Ableton\CommonConfiguration\Live %VERSION%\Preferences\Options.txt"
+ 
+:: Check the exit code
+if %LIVE_EXIT_CODE% neq 0 (
+    echo %EXECUTABLE% exited with code %LIVE_EXIT_CODE%
+    exit /b %LIVE_EXIT_CODE%
+) else (
+    echo Ableton Live 12 Alpha completed successfully.
+    exit /b 0
+)
