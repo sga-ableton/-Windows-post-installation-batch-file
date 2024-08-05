@@ -5,9 +5,9 @@
 :: Set the following to match the Live executable you are using:
 ::
 ::
-set EDITION=Live 12 Alpha
+set EDITION=Live 12 [Intro; Suite]
 set EXECUTABLE=Ableton %EDITION%.exe
-set VERSION=12.0a2
+set VERSION=12.x.x
  
 ::
 ::
@@ -22,7 +22,7 @@ set VERSION=12.0a2
 :: token, but will not prevent existing, already authorized installations from running.
 ::
 ::
-set TOKEN=r9qekcex45yk665w
+set TOKEN=your authorization token
  
 ::
 ::
@@ -47,7 +47,7 @@ echo "-PythonLogLevel=INFO" >> "C:\ProgramData\Ableton\CommonConfiguration\Live 
 echo "-LogFilesDir=%LOGFILESDIR% >> "C:\ProgramData\Ableton\CommonConfiguration\Live %VERSION%\Preferences\Options.txt"
  
 :: Copies Live application to Start Menu for all users
-xcopy /Y "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Ableton Live 12 Alpha.lnk" "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\" 2>nul
+xcopy /Y "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Ableton %EDITION%.lnk" "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\" 2>nul
  
  
 :: Run Ableton and capture its exit code
@@ -64,6 +64,6 @@ if %LIVE_EXIT_CODE% neq 0 (
     echo %EXECUTABLE% exited with code %LIVE_EXIT_CODE%
     exit /b %LIVE_EXIT_CODE%
 ) else (
-    echo Ableton Live 12 Alpha completed successfully.
+    echo Ableton %EDITION% completed successfully.
     exit /b 0
 )
